@@ -16,12 +16,12 @@ import theme from '../../styled/theme'
 import GlobalStyle from '../../styled/global-styles'
 
 const TOKEN_LOGIN = gql`
-  mutation {
-    tokenLogin {
+  {
+    me {
+      id
+      username
       email
-      firstName
-      lastName
-      token
+      role
     }
   }
 `
@@ -30,22 +30,23 @@ class Layout extends React.Component {
   
   componentWillMount = async () => {
 
-    const cookies = new Cookies()
-    const bearerToken = cookies.get('bearer_token')
+    const bearerToken = localStorage.getItem('bearer_token')
 
     if (bearerToken && bearerToken !== ''){
       
-      // Login with bearerToken from cookies
+      // Login with bearerToken from localStorage
       store.dispatch(loginUser({ token: bearerToken }))
-      const { data } = await client.mutate({
-        mutation: TOKEN_LOGIN
+      const { data: {me} } = await client.query({
+        query: TOKEN_LOGIN
       })
+
+      const data = {tokenLogin: {token: bearerToken, firstName: me.username, lastName: me.email, email: me.email}}
 
       store.dispatch(loginUser(data.tokenLogin))
       this.setState(data)
 
-      if (data.tokenLogin) cookies.set('bearer_token', data.tokenLogin.token, '/')
-      else cookies.remove('bearer_token')
+      if (data.tokenLogin) localStorage.setItem('bearer_token', data.tokenLogin.token, '/')
+      else localStorage.removeItem('bearer_token')
     }else{
       store.dispatch(logoutUser())
       this.setState({user: null})

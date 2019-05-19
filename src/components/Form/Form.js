@@ -17,7 +17,7 @@ class Form extends React.Component {
     this.emailInput = React.createRef()
     this.passwordInput = React.createRef()
     this.state = {
-      email: '',
+      login: '',
       password: '',
       data: null,
     }
@@ -27,7 +27,7 @@ class Form extends React.Component {
     e.preventDefault()
 
     const {
-      email,
+      login,
       password,
     } = this.state
 
@@ -35,19 +35,18 @@ class Form extends React.Component {
     const { data } = await client.mutate({
       mutation: LOGIN,
       variables: {
-        email,
+        login,
         password,
       },
     })
 
-    this.setState({ data })
-    store.dispatch(loginUser(data.login))
+    this.setState(data.signIn)
+    store.dispatch(loginUser(data.signIn))
 
-    const cookies = new Cookies()
-    if (data.login) cookies.set('bearer_token', data.login.token)
-    else cookies.remove('bearer_token')
+    if (data.signIn) localStorage.setItem('bearer_token', data.signIn.token)
+    else localStorage.removeItem('bearer_token')
 
-    if (data && data.login) {
+    if (data && data.signIn) {
       navigate('/app/profile')
     }
   }
@@ -77,15 +76,15 @@ class Form extends React.Component {
           </Box> 
         }
         <Label>
-          email
+          Login
           <Input
-            type='email'
-            name='email'
-            autoComplete='email'
+            type='text'
+            name='login'
+            autoComplete='login'
             value={email}
             onChange={this.onChange}
             ref={this.emailInput}
-            placeholder='Enter email'
+            placeholder='Enter login'
             required={true}
           />
         </Label>
@@ -115,11 +114,8 @@ class Form extends React.Component {
 export default Form
 
 const LOGIN = gql`
-  mutation Login ($email: String!, $password: String!) {
-    login (password: $password, email: $email) {
-      email
-      firstName
-      lastName
+  mutation($login: String!, $password: String!) {
+    signIn(login: $login, password: $password) {
       token
     }
   }

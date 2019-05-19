@@ -9,7 +9,7 @@ import store from '../redux/store'
 
 const httpLink = createHttpLink({
   uri: config.networkInterface,
-  credentials: 'include',
+  //credentials: 'include',
 })
 
 const authLink = setContext((_, { headers }) => {
@@ -19,7 +19,7 @@ const authLink = setContext((_, { headers }) => {
   return {
     headers: {
       ...headers,
-      authorization: token ? `Bearer ${token}` : "",
+      'x-token': token ? `${token}` : "",
     }
   }
 })

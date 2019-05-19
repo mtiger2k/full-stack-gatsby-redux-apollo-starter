@@ -10,16 +10,15 @@ import { logoutUser } from '../../redux/actions/userActions';
 
 class LogoutButton extends Component {
   logout = () => {
-    client.mutate({
+    /*client.mutate({
       mutation: LOGOUT,
     }).then(({ data }) => {
       if (data.logout) {
         navigate('/')
       }
-    })
+    })*/
     store.dispatch(logoutUser())
-    const cookies = new Cookies()
-    cookies.remove('bearer_token')
+    localStorage.removeItem('bearer_token')
   }
 
   render() {
